@@ -1,7 +1,7 @@
 use crate::wormhole::core_bridge_program::{state::Config, Commitment};
 use anchor_lang::{
     prelude::{borsh::BorshSerialize, *},
-    system_program,
+    solana_program, system_program,
 };
 
 #[derive(Accounts)]

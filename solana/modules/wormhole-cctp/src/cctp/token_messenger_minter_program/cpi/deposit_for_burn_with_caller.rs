@@ -1,4 +1,4 @@
-use anchor_lang::prelude::*;
+use anchor_lang::{prelude::*, solana_program};
 
 /// Account context to invoke [deposit_for_burn_with_caller].
 pub struct DepositForBurnWithCaller<'info> {

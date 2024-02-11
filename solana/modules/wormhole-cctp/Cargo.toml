@@ -12,19 +12,20 @@ repository.workspace = true
 crate-type = ["cdylib", "lib"]
 
 [features]
-default = ["cpi"]
 client = []
-cpi = ["dep:anchor-spl", "dep:solana-program"]
-mainnet = []
-testnet = []
+cpi = ["dep:anchor-spl"]
+testnet = ["wormhole-solana-consts/testnet", "wormhole-solana-vaas/testnet"]
+localnet = ["wormhole-solana-consts/mainnet", "wormhole-solana-vaas/mainnet"]
 
 [dependencies]
 wormhole-io.workspace = true
 wormhole-raw-vaas.workspace = true
 
+wormhole-solana-consts.workspace = true
+wormhole-solana-vaas.workspace = true
+
 anchor-lang.workspace = true
 anchor-spl = { optional = true, workspace = true }
-solana-program = { optional = true, workspace = true }
 
 hex.workspace = true
 ruint.workspace = true

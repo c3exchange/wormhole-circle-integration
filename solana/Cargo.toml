@@ -7,7 +7,7 @@ resolver = "2"
 
 [workspace.package]
 edition = "2021"
-version = "0.1.0-alpha.5"
+version = "0.1.0-alpha.6"
 authors = ["Wormhole Contributors"]
 license = "Apache-2.0"
 homepage = "https://wormhole.com"
@@ -18,9 +18,16 @@ path = "modules/wormhole-cctp"
 default-features = false
 
 [workspace.dependencies.wormhole-raw-vaas]
-version = "0.1.1"
-features = ["ruint", "on-chain"]
-default-features = false
+version = "0.2.0-alpha.2"
+features = ["ruint"]
+
+[workspace.dependencies.wormhole-solana-utils]
+version = "0.2.0-alpha.11"
+features = ["anchor"]
+
+[workspace.dependencies.wormhole-solana-vaas]
+version = "0.2.0-alpha.11"
+features = ["anchor"]
 
 [workspace.dependencies.anchor-lang]
 version = "0.29.0"
@@ -28,6 +35,7 @@ features = ["derive", "init-if-needed"]
 
 [workspace.dependencies]
 wormhole-io = "0.1.3"
+wormhole-solana-consts = "0.2.0-alpha.11"
 anchor-spl = "0.29.0"
 solana-program = "1.17.20"
 hex = "0.4.3"

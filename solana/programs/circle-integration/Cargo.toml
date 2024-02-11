@@ -12,18 +12,20 @@ repository.workspace = true
 crate-type = ["cdylib", "lib"]
 
 [features]
-default = ["mainnet", "no-idl", "cpi"]
+default = ["no-idl"]
 no-entrypoint = []
 no-idl = []
 no-log-ix-name = []
 cpi = ["no-entrypoint"]
 testnet = ["wormhole-cctp-solana/testnet"]
-mainnet = ["wormhole-cctp-solana/mainnet"]
-integration-test = ["mainnet"]
+localnet = ["wormhole-cctp-solana/localnet"]
+integration-test = ["localnet"]
 
 [dependencies]
 wormhole-cctp-solana = { workspace = true, features = ["cpi"] }
 wormhole-raw-vaas.workspace = true
+
+wormhole-solana-utils.workspace = true
 
 anchor-lang.workspace = true
 anchor-spl.workspace = true

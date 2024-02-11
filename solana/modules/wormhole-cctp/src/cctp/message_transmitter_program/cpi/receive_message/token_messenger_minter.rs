@@ -1,4 +1,4 @@
-use anchor_lang::prelude::*;
+use anchor_lang::{prelude::*, solana_program};
 
 /// Account context to invoke [receive_token_messenger_minter_message].
 pub struct ReceiveTokenMessengerMinterMessage<'info> {

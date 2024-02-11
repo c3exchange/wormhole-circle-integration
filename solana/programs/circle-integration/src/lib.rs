@@ -4,7 +4,7 @@
 use anchor_lang::prelude::*;
 
 cfg_if::cfg_if! {
-    if #[cfg(feature = "mainnet")] {
+    if #[cfg(feature = "localnet")] {
         // Placeholder for real address
         declare_id!("Wormho1eCirc1e1ntegration111111111111111111");
     } else if #[cfg(feature = "testnet")] {

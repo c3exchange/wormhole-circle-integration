@@ -4,8 +4,8 @@ use crate::{
     state::{ConsumedVaa, Custodian},
 };
 use anchor_lang::prelude::*;
-use solana_program::bpf_loader_upgradeable;
-use wormhole_cctp_solana::wormhole::core_bridge_program::{self, VaaAccount};
+use wormhole_cctp_solana::wormhole::{core_bridge_program, VaaAccount, SOLANA_CHAIN};
+use wormhole_solana_utils::cpi::bpf_loader_upgradeable::{self, BpfLoaderUpgradeable};
 
 #[derive(Accounts)]
 pub struct UpgradeContract<'info> {
@@ -30,7 +30,7 @@ pub struct UpgradeContract<'info> {
         space = 8 + ConsumedVaa::INIT_SPACE,
         seeds = [
             ConsumedVaa::SEED_PREFIX,
-            VaaAccount::load(&vaa)?.try_digest()?.as_ref(),
+            VaaAccount::load(&vaa)?.digest().as_ref(),
         ],
         bump,
     )]
@@ -79,8 +79,7 @@ pub struct UpgradeContract<'info> {
     clock: AccountInfo<'info>,
 
     /// CHECK: BPF Loader Upgradeable program.
-    #[account(address = bpf_loader_upgradeable::id())]
-    bpf_loader_upgradeable_program: AccountInfo<'info>,
+    bpf_loader_upgradeable_program: Program<'info, BpfLoaderUpgradeable>,
 
     system_program: Program<'info, System>,
 }
@@ -94,26 +93,28 @@ pub fn upgrade_contract(ctx: Context<UpgradeContract>) -> Result<()> {
     });
 
     // Finally upgrade.
-    solana_program::program::invoke_signed(
-        &bpf_loader_upgradeable::upgrade(
-            &crate::ID,
-            &ctx.accounts.buffer.key(),
-            &ctx.accounts.upgrade_authority.key(),
-            &ctx.accounts.spill.key(),
-        ),
-        &ctx.accounts.to_account_infos(),
+    bpf_loader_upgradeable::upgrade(CpiContext::new_with_signer(
+        ctx.accounts
+            .bpf_loader_upgradeable_program
+            .to_account_info(),
+        bpf_loader_upgradeable::Upgrade {
+            program: ctx.accounts.this_program.to_account_info(),
+            program_data: ctx.accounts.program_data.to_account_info(),
+            buffer: ctx.accounts.buffer.to_account_info(),
+            authority: ctx.accounts.upgrade_authority.to_account_info(),
+            spill: ctx.accounts.spill.to_account_info(),
+            rent: ctx.accounts.rent.to_account_info(),
+            clock: ctx.accounts.clock.to_account_info(),
+        },
         &[&[
             UPGRADE_SEED_PREFIX,
             &[ctx.accounts.custodian.upgrade_authority_bump],
         ]],
-    )
-    .map_err(Into::into)
+    ))
 }
 
 fn handle_access_control(ctx: &Context<UpgradeContract>) -> Result<()> {
-    msg!("okay... {:?}", ctx.accounts.vaa.key());
-    let vaa = core_bridge_program::VaaAccount::load(&ctx.accounts.vaa)?;
-    msg!("and...");
+    let vaa = VaaAccount::load(&ctx.accounts.vaa)?;
     let gov_payload = crate::processor::require_valid_governance_vaa(&vaa)?;
 
     let upgrade = gov_payload
@@ -123,7 +124,7 @@ fn handle_access_control(ctx: &Context<UpgradeContract>) -> Result<()> {
     // Make sure that the contract upgrade is intended for this network.
     require_eq!(
         upgrade.chain(),
-        core_bridge_program::SOLANA_CHAIN,
+        SOLANA_CHAIN,
         CircleIntegrationError::GovernanceForAnotherChain
     );
 
